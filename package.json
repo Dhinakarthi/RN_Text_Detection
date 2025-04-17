@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-ml-kit/text-recognition": "^1.5.2",
     "react": "19.0.0",
     "react-native": "0.79.1",
     "react-native-responsive-screen": "^1.4.2",

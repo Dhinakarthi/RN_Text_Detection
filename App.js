@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Camera, useCameraDevice, useCameraPermission } from "react-native-vision-camera";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
-
+import TextRecognition from '@react-native-ml-kit/text-recognition';
 
 const App = () => {
 
@@ -10,6 +10,7 @@ const App = () => {
   const device = useCameraDevice('back');
   const [showCamera, setShowCamera] = useState(false);
   const [image, setImage] = useState('');
+  const [text, setText] = useState('');
   const cameraRef = useRef(null)
 
   useEffect(() => {
@@ -19,9 +20,19 @@ const App = () => {
   }, []);
 
   const handleCapture = async () => {
-    const photo = await cameraRef.current.takePhoto();
-    setImage(photo?.path);
-    setShowCamera(false);
+    try {
+      const photo = await cameraRef.current.takePhoto();
+      console.log('photo', photo);
+      const result = await TextRecognition.recognize(`file://${photo?.path}`)
+
+      console.log('result', result);
+      setImage(photo?.path);
+      setText(result?.text);
+      setShowCamera(false);
+    } catch (error) {
+      console.log('error', error);
+    }
+
   }
 
   const renderCaptureImage = () => {
@@ -29,8 +40,9 @@ const App = () => {
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         {image && <Image
           source={{ uri: `file://${image}` }}
-          style={{ width: wp('80%'), height: hp('40%'), marginBottom: hp('5%') }}
+          style={{ width: wp('80%'), height: hp('40%'), }}
         />}
+        {text && <Text style={{ fontSize: 20, color: 'black', marginVertical: 20 }}>{text}</Text>}
         <TouchableOpacity
           style={{ padding: 15, borderRadius: 15, alignItems: 'center', backgroundColor: 'black' }}
           onPress={() => setShowCamera(true)}
